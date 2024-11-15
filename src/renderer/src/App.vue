@@ -1,42 +1,52 @@
 <script setup lang="ts">
-// import Versions from './components/Versions.vue'
-//
-// const ipcHandle = () => window.electron.ipcRenderer.send('ping')
-//
-// window.electron.ipcRenderer.on('reply1', (event, data) => {
-//   console.log('接收到了消息: ', data)
-// })
-
-import echarts from 'echarts/lib/echarts'
 import { onMounted, ref } from 'vue'
-// import chinaJson from '../../json/map_data.json'
-import china from 'echarts/map/json/china.json'
-
-
-import getMapData from '../../api/getMapData'
+import * as echarts from 'echarts'
 
 const chartsDom = ref()
-console.log(8888888)
-onMounted(() => {
-    console.log(2222)
-    let myCharts = echarts.init(chartsDom.value)
-    echarts.registerMap('china', china)
-    // getMapData.then(res => {
-    //     console.log(res)
-    //     myCharts.hideLoading();
-    //     echarts.registerMap('CN', res.data);
-    //     // let option = {
-    //     //     series: [{
-    //     //
-    //     //     }]
-    //     // }
-    // })
-})
 
+const getMapData = async () => {
+    console.log(2222)
+
+    const res = await fetch('/china-new.json')
+    const chinaGeoJson = await res.json()
+    console.log(chinaGeoJson)
+    echarts.registerMap('china', chinaGeoJson)
+    const myCharts = echarts.init(chartsDom.value)
+    myCharts.setOption({
+        title: {
+            text: '我拍的地图相册'
+        },
+        // tooltip: {
+        //     trigger: 'item'
+        // },
+        // visualMap: {
+        //     type: 'piecewise',
+        //     max: 10000,
+        //     min: 0,
+        //     text: ['高', '低'],
+        //     calculable: true
+        // },
+        series: [
+            {
+                name: '地图相册',
+                type: 'map',
+                map: 'china'
+                // data
+            }
+        ]
+    })
+
+    myCharts.on('click', (data) => {
+        console.log(data)
+    })
+}
+onMounted(() => {
+    getMapData()
+})
 </script>
 
 <template>
-    <div style="width: 800px; height: 600px" ref="chartsDom"></div>
+    <div ref="chartsDom" style="width: 800px; height: 600px"></div>
     <!--  <img alt="logo" class="logo" src="./assets/electron.svg" />-->
     <!--  <div class="creator">Powered by electron-vite</div>-->
     <!--  <div class="text">-->
